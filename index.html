@@ -17,9 +17,7 @@
             max-width: 800px;
             margin: 0 auto;
         }
-        h1, p.subtitle {
-            text-align: center;
-        }
+        h1, p.subtitle { text-align: center; }
         h1 { margin-bottom: 5px; color: #111827; }
         p.subtitle { color: #6b7280; margin-bottom: 30px; }
         
@@ -32,6 +30,10 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             margin-bottom: 24px;
         }
+        .login-card {
+            max-width: 400px;
+            margin: 0 auto;
+        }
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -40,6 +42,7 @@
         .form-group {
             display: flex;
             flex-direction: column;
+            margin-bottom: 16px;
         }
         label {
             font-size: 14px;
@@ -69,19 +72,22 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        .btn-primary {
-            background-color: #2563eb;
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
+        .btn-primary { background-color: #2563eb; color: white; width: 100%; }
         .btn-primary:hover { background-color: #1d4ed8; }
         .btn-success { background-color: #10b981; color: white; }
         .btn-success:hover { background-color: #059669; }
         .btn-secondary { background-color: #fff; border: 1px solid #d1d5db; color: #374151; width: 100%; }
         .btn-secondary:hover { background-color: #f3f4f6; }
+        .btn-danger { background-color: #ef4444; color: white; padding: 6px 12px; font-size: 12px; }
+        .btn-danger:hover { background-color: #dc2626; }
         
-        /* Flight List */
+        /* Layout Utilities */
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
         .flight-item {
             display: flex;
             justify-content: space-between;
@@ -92,9 +98,7 @@
         .flight-item:last-child { border-bottom: none; }
         .flight-info h3 { margin: 0 0 4px 0; font-size: 18px; }
         .flight-info p { margin: 0; color: #6b7280; font-size: 14px; }
-
-        /* Utility */
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .status-message {
             padding: 16px;
             background-color: #d1fae5;
@@ -109,64 +113,99 @@
 <body>
 
 <div class="container">
-    <h1>Flight Reserve</h1>
-    <p class="subtitle">Find and book your next journey.</p>
-
-    <div id="statusMessage" class="status-message hidden"></div>
-
-    <div class="card" id="searchSection">
-        <form id="searchForm">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="departureCity">From</label>
-                    <input type="text" id="departureCity" required placeholder="Departure City">
-                </div>
-                <div class="form-group">
-                    <label for="arrivalCity">To</label>
-                    <input type="text" id="arrivalCity" required placeholder="Arrival City">
-                </div>
-                <div class="form-group">
-                    <label for="departureDate">Date</label>
-                    <input type="date" id="departureDate" required>
-                </div>
+    
+    <div id="loginSection" class="card login-card">
+        <h1>Login</h1>
+        <p class="subtitle">Authenticate to access Flight Reserve</p>
+        <div id="loginError" class="status-message hidden" style="background-color: #fee2e2; color: #991b1b;"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
             </div>
-            <button type="submit" class="btn-primary">Search Flights</button>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">Login</button>
         </form>
     </div>
 
-    <div class="card hidden" id="resultsSection">
-        <h2>Available Flights</h2>
-        <div id="flightList"></div>
-    </div>
+    <div id="appSection" class="hidden">
+        <div class="flex-between">
+            <div>
+                <h1 style="text-align: left; margin: 0;">Flight Reserve</h1>
+                <p class="subtitle" style="text-align: left; margin: 0;">Find and book your next journey.</p>
+            </div>
+            <button id="logoutBtn" class="btn-danger">Logout</button>
+        </div>
 
-    <div class="card hidden" id="bookingSection">
-        <h2 id="bookingHeader">Book Flight</h2>
-        <form id="bookingForm">
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="passengerName">Full Name</label>
-                <input type="text" id="passengerName" required>
-            </div>
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="passengerEmail">Email</label>
-                <input type="email" id="passengerEmail" required>
-            </div>
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="passengerPhone">Phone</label>
-                <input type="tel" id="passengerPhone" required>
-            </div>
-            <div style="display: flex; gap: 16px; margin-top: 24px;">
-                <button type="submit" class="btn-primary" style="margin-top: 0;">Confirm Booking</button>
-                <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
-            </div>
-        </form>
+        <div id="statusMessage" class="status-message hidden"></div>
+
+        <div class="card" id="searchSection">
+            <form id="searchForm">
+                <div class="form-grid">
+                    <div class="form-group" style="margin: 0;">
+                        <label for="departureCity">From</label>
+                        <input type="text" id="departureCity" required placeholder="Departure City">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label for="arrivalCity">To</label>
+                        <input type="text" id="arrivalCity" required placeholder="Arrival City">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label for="departureDate">Date</label>
+                        <input type="date" id="departureDate" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 16px;">Search Flights</button>
+            </form>
+        </div>
+
+        <div class="card hidden" id="resultsSection">
+            <h2 style="margin-top: 0;">Available Flights</h2>
+            <div id="flightList"></div>
+        </div>
+
+        <div class="card hidden" id="bookingSection">
+            <h2 id="bookingHeader" style="margin-top: 0;">Book Flight</h2>
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label for="passengerName">Full Name</label>
+                    <input type="text" id="passengerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="passengerEmail">Email</label>
+                    <input type="email" id="passengerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="passengerPhone">Phone</label>
+                    <input type="tel" id="passengerPhone" required>
+                </div>
+                <div style="display: flex; gap: 16px; margin-top: 24px;">
+                    <button type="submit" class="btn-primary" style="margin: 0;">Confirm Booking</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn" style="margin: 0;">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <script>
-    // State variables
+    // --- Configuration ---
+    // Change this to your Vercel URL when deploying (e.g., 'https://your-backend.vercel.app')
+    const API_BASE_URL = 'http://127.0.0.1:8000'; 
+
+    // --- State Variables ---
     let selectedFlightId = null;
 
-    // DOM Elements
+    // --- DOM Elements ---
+    const loginSection = document.getElementById('loginSection');
+    const appSection = document.getElementById('appSection');
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
     const searchForm = document.getElementById('searchForm');
     const resultsSection = document.getElementById('resultsSection');
     const flightList = document.getElementById('flightList');
@@ -176,7 +215,79 @@
     const cancelBtn = document.getElementById('cancelBtn');
     const statusMessage = document.getElementById('statusMessage');
 
-    // 1. Search for Flights
+    // --- Initialization ---
+    function checkAuth() {
+        const token = localStorage.getItem('flightToken');
+        if (token) {
+            loginSection.classList.add('hidden');
+            appSection.classList.remove('hidden');
+        } else {
+            loginSection.classList.remove('hidden');
+            appSection.classList.add('hidden');
+        }
+    }
+    checkAuth();
+
+    // --- Helper to get headers with token ---
+    function getAuthHeaders() {
+        const token = localStorage.getItem('flightToken');
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`
+        };
+    }
+
+    // --- Handle API Errors (e.g., expired token) ---
+    function handleApiError(response) {
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('flightToken');
+            checkAuth();
+            alert("Your session has expired. Please log in again.");
+            return true;
+        }
+        return false;
+    }
+
+    // --- 1. Authentication ---
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginError.classList.add('hidden');
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api-token-auth/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('flightToken', data.token);
+                loginForm.reset();
+                checkAuth();
+            } else {
+                loginError.textContent = "Invalid username or password.";
+                loginError.classList.remove('hidden');
+            }
+        } catch (error) {
+            loginError.textContent = "Failed to connect to the server.";
+            loginError.classList.remove('hidden');
+        }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('flightToken');
+        // Reset app state
+        resultsSection.classList.add('hidden');
+        bookingSection.classList.add('hidden');
+        statusMessage.classList.add('hidden');
+        checkAuth();
+    });
+
+    // --- 2. Search for Flights ---
     searchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         statusMessage.classList.add('hidden');
@@ -188,29 +299,33 @@
         };
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/flights/findflights', {
+            const response = await fetch(`${API_BASE_URL}/flights/findflights`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(searchData)
             });
-            const flights = await response.json();
-            
-            renderFlights(flights);
-            resultsSection.classList.remove('hidden');
-            bookingSection.classList.add('hidden');
+
+            if (handleApiError(response)) return;
+
+            if (response.ok) {
+                const flights = await response.json();
+                renderFlights(flights);
+                resultsSection.classList.remove('hidden');
+                bookingSection.classList.add('hidden');
+            } else {
+                showStatus("Failed to fetch flights.", false);
+            }
             
         } catch (error) {
-            console.error("Error fetching flights:", error);
             showStatus("Failed to communicate with the server.", false);
         }
     });
 
-    // Render the flight list HTML
     function renderFlights(flights) {
-        flightList.innerHTML = ''; // Clear previous results
+        flightList.innerHTML = '';
         
         if (flights.length === 0) {
-            flightList.innerHTML = '<p>No flights found for this route and date.</p>';
+            flightList.innerHTML = '<p style="color: #6b7280;">No flights found for this route and date.</p>';
             return;
         }
 
@@ -228,7 +343,7 @@
         });
     }
 
-    // 2. Select a Flight
+    // --- 3. Select a Flight ---
     window.selectFlight = function(id, airline, dep, arr) {
         selectedFlightId = id;
         bookingHeader.textContent = `Booking: ${airline} (${dep} to ${arr})`;
@@ -236,23 +351,25 @@
         bookingSection.classList.remove('hidden');
     };
 
-    // 3. Submit Booking
+    // --- 4. Submit Booking ---
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const passengerData = {
-            flightNumber: selectedFlightId, // Backend expects flightNumber as the DB ID
+            flightNumber: selectedFlightId,
             name: document.getElementById('passengerName').value,
             email: document.getElementById('passengerEmail').value,
             phone: document.getElementById('passengerPhone').value
         };
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/flights/savereservation', {
+            const response = await fetch(`${API_BASE_URL}/flights/savereservation`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(passengerData)
             });
+
+            if (handleApiError(response)) return;
 
             if (response.status === 201) {
                 showStatus("Success! Your flight is booked.", true);
@@ -262,18 +379,15 @@
                 showStatus("Booking failed. Please check your data.", false);
             }
         } catch (error) {
-            console.error("Error booking flight:", error);
             showStatus("Failed to communicate with the server.", false);
         }
     });
 
-    // Cancel Booking
     cancelBtn.addEventListener('click', () => {
         bookingSection.classList.add('hidden');
         resultsSection.classList.remove('hidden');
     });
 
-    // Utility: Show Status Messages
     function showStatus(message, isSuccess) {
         statusMessage.textContent = message;
         statusMessage.style.backgroundColor = isSuccess ? '#d1fae5' : '#fee2e2';

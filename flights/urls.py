@@ -30,4 +30,6 @@ urlpatterns = [
     path('',include(router.urls)),
     path('flights/findflights',views.find_flights),
     path('api-token-auth/', obtain_auth_token, name='api=token-auth'),
+    path('flights/savereservation', views.save_reservations), 
+    path('api-token-auth/', obtain_auth_token, name='api=token-auth'),
 ]

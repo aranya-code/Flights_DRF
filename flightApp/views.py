@@ -18,21 +18,22 @@ def find_flights(request):
 
 @api_view(['POST'])
 def save_reservations(request):
-    flight = Flight.objects.get(id = request.data['flightNumber'])
+    flight = Flight.objects.get(id=request.data['flightNumber'])
 
     passenger = Passenger()
     passenger.name = request.data['name']
     passenger.email = request.data['email']
     passenger.phone = request.data['phone']
+    
+    # ADD THIS LINE: Save the passenger first so it gets an ID
+    passenger.save() 
 
     reservation = Reservation()
     reservation.flight = flight
     reservation.passenger = passenger
-
     reservation.save()
 
     return Response(status=status.HTTP_201_CREATED)
-
 
 
 class FlightViewSet(viewsets.ModelViewSet):
