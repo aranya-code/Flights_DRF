@@ -1,12 +1,67 @@
 services:
-  web:
+  
+  # --- Primary Web Worker ---
+  # This container handles the initial setup (collecting static files)
+  # and runs the first instance of the Django application.
+  web-1:
+    # Build the image using the Dockerfile in the current directory
     build: .
-    command: "python manage.py runserver 0.0.0.0:8000"
+    
+    # Open a shell and run two commands sequentially:
+    # 1. Gather all CSS/JS into the staticfiles directory automatically
+    # 2. Start the Django server on port 8000 (forcing static files with --insecure)
+    command: >
+      sh -c "
+      python manage.py collectstatic --noinput &&
+      python manage.py runserver 0.0.0.0:8000 --insecure
+      "
+    
     volumes:
+      # Bind Mount: Syncs your local Windows folder into the container's /app folder for real-time code updates
       - .:/app
+      # Named Volume: Attaches the shared storage bucket for static files
+      - static_volume:/app/staticfiles
+      
     ports:
+      # Maps port 8000 on your Windows host machine to port 8000 inside this container
       - "8000:8000"
+      
+    env_file:
+      # Load environment variables specific to the Docker setup (like the database host)
+      - .env.docker
+      
+    environment:
+      # Hardcode an override for the DEBUG environment variable
+      - DEBUG=1
+
+  # --- Secondary Web Worker ---
+  # This container runs a second instance of the exact same Django application.
+  # It skips the static setup phase because web-1 already handled it.
+  web-2:
+    build: .
+    
+    # Starts the server immediately. It doesn't need to run collectstatic.
+    command: "python manage.py runserver 0.0.0.0:8000 --insecure"
+    
+    volumes:
+      # Uses the exact same bind mount to ensure both workers run the same code
+      - .:/app
+      # Uses the exact same named volume so it can read the CSS collected by web-1
+      - static_volume:/app/staticfiles
+      
+    ports:
+      # Maps port 8001 on your Windows host machine to port 8000 inside this container
+      # (Because port 8000 on Windows is already taken by web-1)
+      - "8001:8000"
+      
     env_file:
       - .env.docker
+      
     environment:
       - DEBUG=1
+  
+# --- Global Definitions ---
+volumes:
+  # Creates the empty, persistent storage drive named 'static_volume' 
+  # before any of the web containers try to start up.
+  static_volume:
