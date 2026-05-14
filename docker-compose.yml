@@ -60,6 +60,24 @@ services:
     environment:
       - DEBUG=1
   
+  # Configuring Nginx proxy server for application
+  nginx:
+    # Importing Nginx image
+    image: nginx:latest
+
+    # Port mapping
+    ports:
+      - "8080:80"
+
+    # Mapping volumes
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+    depends_on:
+      - web-1
+      - web-2
+
+
 # --- Global Definitions ---
 volumes:
   # Creates the empty, persistent storage drive named 'static_volume' 
