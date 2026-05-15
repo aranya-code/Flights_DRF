@@ -6,6 +6,7 @@ on:
       - main
     paths:
       # Watch your specific Django app folders
+      - 'Flights_DRF/**'
       - 'flightApp/**'
       - 'flights/**'
       # Watch core Python files at the root
@@ -16,6 +17,7 @@ on:
     branches:
       - main
     paths:
+      - 'Flights_DRF/**'
       - 'flightApp/**'
       - 'flights/**'
       - 'manage.py'
