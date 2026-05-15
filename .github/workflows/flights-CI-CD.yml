@@ -59,4 +59,4 @@ jobs:
         run: docker build -t aranya3/flights-app:latest .
 
       - name: Push docker image
-        run: docker push aranya3/flights-app:latest .
+        run: docker push aranya3/flights-app:latest
