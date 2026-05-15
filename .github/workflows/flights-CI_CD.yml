@@ -2,44 +2,43 @@
 name: flights-CI/CD
 
 on:
-    push:
-        branches:
-            - main
-        paths:
-            - 'Flights_DRF/**'
-            - '.github/workflows/flights-CI-CD.yml'
-    pull_request:
-        branches:
-            - main
-        paths:
-            - 'Flights_DRF/**'
-            - '.github/workflows/flights-CI-CD.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'Flights_DRF/**'
+      - '.github/workflows/flights-CI-CD.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'Flights_DRF/**'
+      - '.github/workflows/flights-CI-CD.yml'
 
 
 jobs:
-    build:
-        runs_on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-        - name: Checkout Code
-          uses: action/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
         
-        - name: Setup Python
-          uses: actions/setup-python@v5
-          with:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: 
             python-version: "3.12"
-        
-        - name: Install python dependencies
-          run: |
-           python - pip install --upgrade pip
+                    
+      - name: Install python dependencies
+        run: |
+           python -m pip install --upgrade pip
            pip install -r requirements.txt
         
-        - name: Run migrations
-          run: |
-            python manage.py migrate
-
-        - name: Run tests
-          run: |
-            python manage.py test
+      - name: Run migrations
+        run: python manage.py migrate
+            
+      - name: Run tests
+        run: python manage.py test
+            
 
             
