@@ -1,34 +1,63 @@
-# ✈️ Flight Reservation API (Django REST Framework)
+# ✈️ Flight Reservation System API
 
-A RESTful backend system for managing flights, passengers, and reservations built using **Django** and **Django REST Framework (DRF)**. This project supports authentication, flight search, and reservation creation.
+A production-style Flight Reservation Backend System built using Django and Django REST Framework with authentication, flight search, passenger reservation management, Dockerized deployment, and Nginx load balancing support.
 
----
+This project demonstrates:
 
-## 🚀 Features
-
-* Flight management (CRUD APIs)
-* Passenger management
-* Reservation system (Flight + Passenger mapping)
-* Flight search API
-* Token-based authentication
-* MySQL database integration
-* Input validation for flight numbers
+- REST API development
+- Authentication using DRF Token Auth
+- Dockerized Django deployment
+- Nginx reverse proxy + load balancing
+- Reservation system architecture
+- Frontend integration using Vanilla JavaScript
+- Environment-based configuration
 
 ---
 
-## 🏗️ Tech Stack
+# 🚀 Features
 
-* Python 3.x
-* Django 5.x
-* Django REST Framework
-* MySQL
-* Token Authentication (DRF)
+## ✅ Core Features
+
+- Flight Management APIs (CRUD)
+- Passenger Management APIs
+- Reservation Management APIs
+- Flight Search API
+- Save Reservation API
+- Token-based Authentication
+- Input Validation
+- Environment Variable Configuration
 
 ---
 
-## 📁 Project Structure
+## ✅ DevOps & Deployment Features
 
-```
+- Dockerized Application
+- Docker Compose Multi-Service Setup
+- Nginx Reverse Proxy
+- Nginx Load Balancer
+- Multiple Django Containers (`web-1`, `web-2`)
+- Environment-based settings
+
+---
+
+# 🏗️ Tech Stack
+
+| Category | Technology |
+|---|---|
+| Backend | Python 3 |
+| Framework | Django 5 |
+| API Framework | Django REST Framework |
+| Authentication | DRF Token Authentication |
+| Database | PostgreSQL / SQLite |
+| Deployment | Docker |
+| Reverse Proxy | Nginx |
+| Frontend | HTML + CSS + Vanilla JS |
+
+---
+
+# 📁 Project Structure
+
+```bash
 flights/
 │
 ├── flightApp/
@@ -40,196 +69,416 @@ flights/
 │   ├── settings.py
 │   ├── urls.py
 │
+├── nginx/
+│   └── default.conf
+│
+├── docker-compose.yml
+├── Dockerfile
+├── .dockerignore
+├── .env.docker
+│
+├── frontend/
+│   └── index.html
+│
 └── manage.py
 ```
 
 ---
 
-## 🧩 Models
+# 🧩 Database Models
 
-Defined in 
-
-* **Flight**
-
-  * flightNumber
-  * airlines
-  * departureCity
-  * arrivalCity
-  * departureDate
-  * departureTime
-
-* **Passenger**
-
-  * name
-  * email
-  * phone
-
-* **Reservation**
-
-  * One-to-One with Passenger
-  * Foreign Key to Flight
-
-* Auto token generation for users using Django signals
+The project contains three main entities:
 
 ---
 
-## 🔄 Serializers
+## ✈️ Flight Model
 
-Defined in 
+Stores flight information.
 
-* `FlightSerializer`
-
-  * Includes validation for alphanumeric flight numbers
-* `PassengerSerializer`
-* `ReservationSerializer`
-
----
-
-## 🌐 API Endpoints
-
-Defined in 
-
-### 🔹 ViewSets (CRUD)
-
-| Endpoint         | Method    | Description         |
-| ---------------- | --------- | ------------------- |
-| `/flights/`      | GET, POST | Manage flights      |
-| `/passengers/`   | GET, POST | Manage passengers   |
-| `/reservations/` | GET, POST | Manage reservations |
+| Field | Type |
+|---|---|
+| flightNumber | CharField |
+| airlines | CharField |
+| departureCity | CharField |
+| arrivalCity | CharField |
+| departureDate | DateTimeField |
+| departureTime | TimeField |
 
 ---
 
-### 🔹 Custom APIs
+## 👤 Passenger Model
 
-Defined in 
+Stores passenger details.
 
-#### 🔍 Find Flights
+| Field | Type |
+|---|---|
+| name | CharField |
+| email | CharField |
+| phone | CharField |
 
+---
+
+## 🎫 Reservation Model
+
+Maps passengers to flights.
+
+| Relationship | Type |
+|---|---|
+| flight | ForeignKey → Flight |
+| passenger | OneToOneField → Passenger |
+
+---
+
+# 🗂️ ER Diagram
+
+```mermaid
+erDiagram
+
+    FLIGHT {
+        int id PK
+        string flightNumber
+        string airlines
+        string departureCity
+        string arrivalCity
+        datetime departureDate
+        time departureTime
+    }
+
+    PASSENGER {
+        int id PK
+        string name
+        string email
+        string phone
+    }
+
+    RESERVATION {
+        int id PK
+        int flight_id FK
+        int passenger_id FK
+    }
+
+    FLIGHT ||--o{ RESERVATION : contains
+    PASSENGER ||--|| RESERVATION : books
 ```
-POST /flights/findflights
+
+---
+
+# 🔄 API Architecture
+
+```mermaid
+graph TD
+
+    U[User]
+
+    F[Frontend<br/>HTML + CSS + JavaScript]
+
+    N[Nginx Reverse Proxy<br/>+ Load Balancer]
+
+    W1[Django Container<br/>web-1]
+
+    W2[Django Container<br/>web-2]
+
+    DB[(Database)]
+
+    U --> F
+    F --> N
+
+    N --> W1
+    N --> W2
+
+    W1 --> DB
+    W2 --> DB
 ```
 
-**Request Body:**
+---
+
+# 🔐 Authentication
+
+The application uses DRF Token Authentication.
+
+## Generate Token
+
+```http
+POST /api-token-auth/
+```
+
+### Request
 
 ```json
 {
-  "departureCity": "NYC",
-  "arrivalCity": "LA",
-  "departureDate": "2025-01-01"
+  "username": "admin",
+  "password": "password"
+}
+```
+
+### Response
+
+```json
+{
+  "token": "your_token_here"
 }
 ```
 
 ---
 
-#### 💾 Save Reservation
+## Use Token
 
-```
-POST /save_reservations
+Add token in request headers:
+
+```http
+Authorization: Token your_token_here
 ```
 
-**Request Body:**
+---
+
+# 🌐 API Endpoints
+
+## 🔹 Flight APIs
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/flights/` | Get all flights |
+| POST | `/flights/` | Create flight |
+| PUT | `/flights/{id}/` | Update flight |
+| DELETE | `/flights/{id}/` | Delete flight |
+
+---
+
+## 🔹 Passenger APIs
+
+| Method | Endpoint |
+|---|---|
+| GET | `/passengers/` |
+| POST | `/passengers/` |
+
+---
+
+## 🔹 Reservation APIs
+
+| Method | Endpoint |
+|---|---|
+| GET | `/reservations/` |
+| POST | `/reservations/` |
+
+---
+
+# 🔍 Find Flights API
+
+```http
+POST /flights/findflights
+```
+
+## Request
+
+```json
+{
+  "departureCity": "Kolkata",
+  "arrivalCity": "Delhi",
+  "departureDate": "2026-05-20"
+}
+```
+
+---
+
+# 💾 Save Reservation API
+
+```http
+POST /flights/savereservation
+```
+
+## Request
 
 ```json
 {
   "flightNumber": 1,
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phone": "1234567890"
+  "name": "Aranya",
+  "email": "aranya@gmail.com",
+  "phone": "9876543210"
 }
 ```
 
 ---
 
-### 🔐 Authentication
+# 🧪 Serializer Validation
 
-```
-POST /api-token-auth/
+The project validates flight numbers using regex validation.
+
+```python
+^[A-Za-z0-9]*$
 ```
 
-Returns authentication token.
+Only alphanumeric flight numbers are allowed.
 
 ---
 
-## ⚙️ Setup Instructions
+# ⚙️ Environment Configuration
 
-### 1️⃣ Clone Repository
+Configured using `.env.docker`.
+
+Example:
+
+```env
+SECRET_KEY=your_secret_key
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=your_database_url
+```
+
+---
+
+# 🐳 Docker Setup
+
+The application is fully Dockerized.
+
+---
+
+## 📦 Docker Services
+
+- Django Application
+- PostgreSQL Database
+- Nginx Reverse Proxy
+
+---
+
+# ▶️ Run Using Docker
+
+## 1️⃣ Clone Repository
 
 ```bash
 git clone <your-repo-url>
-cd <repo-folder>
+cd flights
 ```
 
 ---
 
-### 2️⃣ Create Virtual Environment
+## 2️⃣ Build Containers
 
 ```bash
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+docker compose build
 ```
 
 ---
 
-### 3️⃣ Install Dependencies
+## 3️⃣ Run Containers
 
 ```bash
-pip install django djangorestframework mysqlclient python-dotenv
+docker compose up -d
 ```
 
 ---
 
-### 5️⃣ Apply Migrations
+## 4️⃣ Apply Migrations
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+docker compose exec web python manage.py migrate
 ```
 
 ---
 
-### 6️⃣ Create Superuser
+## 5️⃣ Create Superuser
 
 ```bash
-python manage.py createsuperuser
+docker compose exec web python manage.py createsuperuser
 ```
 
 ---
 
-### 7️⃣ Run Server
+# 🌍 Nginx Load Balancer
 
-```bash
-python manage.py runserver
+The project uses:
+
+- Reverse Proxy
+- Least Connection Load Balancing
+- Multiple Django Containers
+
+---
+
+## 🔁 Load Balancing Strategy
+
+```nginx
+upstream django_cluster {
+    least_conn;
+    server web-1:8000;
+    server web-2:8000;
+}
+```
+
+This distributes traffic between multiple Django instances.
+
+---
+
+# 🖥️ Frontend
+
+The frontend is built using:
+
+- HTML
+- CSS
+- Vanilla JavaScript
+
+Frontend Features:
+
+- Login Page
+- Flight Search
+- Reservation Booking
+- Token Storage
+- API Integration
+
+---
+
+# 🔄 Request Flow
+
+```text
+User
+ ↓
+Frontend
+ ↓
+Nginx Reverse Proxy
+ ↓
+Django REST APIs
+ ↓
+Database
 ```
 
 ---
 
-## 🔑 Authentication Usage
+# 🧠 Important Concepts Demonstrated
 
-Add token to headers:
-
-```
-Authorization: Token <your_token>
-```
-
----
-
-
-## 📌 Future Enhancements
-
-* Booking history
-* Payment integration
-* JWT authentication
-* Swagger/OpenAPI docs
-* Docker support
+- REST API Design
+- Token Authentication
+- Reverse Proxy
+- Load Balancing
+- Docker Networking
+- Environment Variables
+- Serializer Validation
+- Django ORM Relationships
+- CRUD Operations
+- Multi-container Architecture
 
 ---
 
-## 👨‍💻 Author
+# 📌 Future Enhancements
+
+- JWT Authentication
+- Swagger/OpenAPI Documentation
+- Payment Gateway Integration
+- Booking History
+- Seat Selection
+- Email Notifications
+- Kubernetes Deployment
+- CI/CD Pipeline
+- Redis Caching
+- Celery Background Tasks
+
+---
+
+# 👨‍💻 Author
 
 Aranya Majumdar
 
+Backend Developer | Python Developer | DevOps Enthusiast
+
 ---
 
-## 📄 License
+# 📄 License
 
-This project is for learning/demo purposes.
+This project is created for educational and portfolio purposes.
